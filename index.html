@@ -30,7 +30,7 @@
     </div>
 </div>
 <div id="card-container"></div>
-<div id="button-container" class="ui centered raised card">
+<div id="button-container" class="ui centered raised card hidden">
     <div class="ui top attached progress timer red">
         <div class="bar"></div>
         <div class="label"></div>
@@ -222,21 +222,27 @@
                     <div class="content">
                         <div class="title">Round 1</div>
                         <div class="description">Anything goes</div>
-                        {{#ifCond round '>=' 1}}<div class="sub header">{{roundOneTeamOnePoints}} - {{roundOneTeamTwoPoints}}</div>{{/ifCond}}
+                        {{#ifCond round '>=' 1}}
+                        <div class="sub header">{{roundOneTeamOnePoints}} - {{roundOneTeamTwoPoints}}</div>
+                        {{/ifCond}}
                     </div>
                 </div>
                 <div class="step {{#ifCond round '==' 2}}active{{/ifCond}}">
                     <div class="content">
                         <div class="title">Round 2</div>
                         <div class="description">One word</div>
-                        {{#ifCond round '>=' 2}}<div class="sub header">{{roundTwoTeamOnePoints}} - {{roundTwoTeamTwoPoints}}</div>{{/ifCond}}
+                        {{#ifCond round '>=' 2}}
+                        <div class="sub header">{{roundTwoTeamOnePoints}} - {{roundTwoTeamTwoPoints}}</div>
+                        {{/ifCond}}
                     </div>
                 </div>
                 <div class="step {{#ifCond '==' round 3}}active{{/ifCond}}">
                     <div class="content">
                         <div class="title">Round 3</div>
                         <div class="description">Charades</div>
-                        {{#ifCond round '==' 3}}<div class="sub header">{{roundThreeTeamOnePoints}} - {{roundThreeTeamTwoPoints}}</div>{{/ifCond}}
+                        {{#ifCond round '==' 3}}
+                        <div class="sub header">{{roundThreeTeamOnePoints}} - {{roundThreeTeamTwoPoints}}</div>
+                        {{/ifCond}}
                     </div>
                 </div>
             </div>
@@ -267,6 +273,80 @@
                 </div>
             </div>
         </div>
+</script>
+<script id="setup-card-template" type="text/x-handlebars-template">
+    <div id="setup-card" class="ui centered raised card">
+        <div class="content">
+            {{#ifCond cards.length '>' 0}}
+            <div class="ui raised segments">
+                <div class="ui segment center aligned">
+                    <div class="ui header">Pick {{ pickSize }} cards</div>
+                </div>
+                <div class="ui segment left aligned">
+                    <div class="ui form">
+                        <div class="grouped fields">
+                            {{#each cards}}
+                            <div class="field">
+                                <div class="ui checkbox">
+                                    <input type="checkbox" id="checkbox{{@index}}">
+                                    <label for="checkbox{{@index}}">{{this.title}}</label>
+                                </div>
+                            </div>
+                            {{/each}}
+                            <div class="ui positive basic fluid button disabled">
+                                <i class="check icon"></i>Next
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{/ifCond}}
+            {{#ifCond cards.length '===' 0}}
+            <div class="ui raised segments">
+                <div class="ui segment center aligned">
+
+                    <h3 class="ui header">Monikers</h3>
+                    <div class="meta">
+                        <span class="category">A dumb part game that respects your intelligence.</span>
+                    </div>
+                </div>
+                <div class="ui segment">
+                    <form class="ui form players">
+                        <div class="field">
+                            <label>Deck Size</label>
+                            <input type="text" name="integer" value="40">
+                        </div>
+                        <div class="ui positive basic fluid button">
+                            <i class="check icon"></i>Next
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {{/ifCond}}
+            {{#ifCond cards '==' null}}
+            <div class="ui raised segments">
+                <div class="ui segment center aligned">
+
+                    <h3 class="ui header">Monikers</h3>
+                    <div class="meta">
+                        <span class="category">A dumb part game that respects your intelligence.</span>
+                    </div>
+                </div>
+                <div class="ui segment">
+                    <form class="ui form players">
+                        <div class="field">
+                            <label>Number of Players</label>
+                            <input type="text" name="integer" placeholder="Number of Players">
+                        </div>
+                        <div class="ui positive basic fluid button disabled">
+                            <i class="check icon"></i>Next
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {{/ifCond}}
+        </div>
+    </div>
 </script>
 </body>
 </html>

@@ -1,8 +1,12 @@
 const maxTimerCount = 60;
-const deckSize = 100;
+let deckSize = 0;
+
+let pickSize = 0;
+let numberOfPlayers = 0;
+let pickTurn = 0;
 
 let currentCards = [];
-let handSize = deckSize;
+let handSize = 0;
 let skippedCards = [];
 let usedCards = [];
 let timerCount = maxTimerCount;
@@ -21,20 +25,43 @@ let roundThreeTeamTwoPoints = 0;
 $(document).ready(() => {
     resetTimer();
 
-    $.getJSON("cards.json", function (data) {debugger;
-        currentCards = shuffle(data).slice(0, deckSize);
+    $.getJSON("cards.json", (data) => {
+        loadCard("setup-card-template", {});
 
-        loadCard("empty-card-template", {
-            turn: turn,
-            teamOnePoints: teamOnePoints,
-            teamTwoPoints: teamTwoPoints,
-            round: round,
-            roundOneTeamOnePoints: 0,
-            roundTwoTeamOnePoints: 0,
-            roundThreeTeamOnePoints: 0,
-            roundOneTeamTwoPoints: 0,
-            roundTwoTeamTwoPoints: 0,
-            roundThreeTeamTwoPoints: 0
+        let $formInput = $('.form input[name=integer]');
+        let $formButton = $('.form .button');
+
+        $formInput.blur(() => {
+            if (parseInt($formInput[0].value) > 0){
+                $formButton.removeClass('disabled');
+                numberOfPlayers = parseInt($formInput[0].value);
+            } else {
+                $formButton.addClass('disabled');
+            }
+        });
+
+        $formButton.click(() => {
+            loadCard("setup-card-template", {cards: []});
+
+            let $formInput = $('.form input[name=integer]');
+            let $formButton = $('.form .button');
+
+            $formInput.blur(() => {
+                if (parseInt($formInput[0].value) > 0){
+                    $formButton.removeClass('disabled');
+                } else {
+                    $formButton.addClass('disabled');
+                }
+            });
+
+            $formButton.click(() => {
+                deckSize = parseInt($formInput[0].value);
+                pickSize = Math.round(deckSize / numberOfPlayers);
+                pickTurn = numberOfPlayers;
+                data = shuffle(data);
+
+                bindSetupCard(data);
+            });
         });
     });
 
@@ -82,6 +109,58 @@ $(document).ready(() => {
     $('.step6.instructions').modal('attach events', '.step5.modal .button');
 });
 
+function bindSetupCard(data) {
+    loadCard("setup-card-template", {
+        cards: data.slice(0, pickSize * 1.5),
+        pickSize: pickSize
+    });
+
+    $formButton = $('.form .button'); // need to rebind the button to variable.
+
+    let $formCheckboxes = $('.form input[type=checkbox]');
+    $formCheckboxes.click(() => {
+        if ($('.form input[type=checkbox]:checked').length === pickSize) {
+            $formButton.removeClass('disabled');
+        } else {
+            $formButton.addClass('disabled');
+        }
+    });
+
+    $formButton.click(() => {
+        let checkedLabel = $('.form input[type=checkbox]:checked').next();
+        let checkedTitles = [];
+
+        for(let i = 0; i < checkedLabel.length; i++){
+            checkedTitles.push(checkedLabel[i].innerHTML);
+        }
+
+        currentCards = currentCards.concat(data.filter(item => checkedTitles.indexOf(item.title) > -1));
+        data = shuffle(data.filter(item => checkedTitles.indexOf(item.title) === -1));
+
+        pickTurn--;
+        // reload this for the next player
+        if (pickTurn > 0) {
+            bindSetupCard(data);
+        } else {
+            deckSize = currentCards.length;
+            handSize = currentCards.length;
+            $('#button-container').removeClass('hidden');
+            loadCard("empty-card-template", {
+                turn: turn,
+                teamOnePoints: teamOnePoints,
+                teamTwoPoints: teamTwoPoints,
+                round: round,
+                roundOneTeamOnePoints: 0,
+                roundTwoTeamOnePoints: 0,
+                roundThreeTeamOnePoints: 0,
+                roundOneTeamTwoPoints: 0,
+                roundTwoTeamTwoPoints: 0,
+                roundThreeTeamTwoPoints: 0
+            });
+        }
+    });
+}
+
 function getNextCard() {
     if (currentCards.length > 0) {
         let currentCard = currentCards[currentCards.length - 1];
@@ -104,6 +183,7 @@ function loadCard(templateName, context) {
     let html = template(context);
     $('#card').remove();
     $('#empty-card').remove();
+    $('#setup-card').remove();
     $('#card-container').prepend(html);
 }
 
@@ -187,7 +267,6 @@ function nextTurn() {
 
     currentCards = shuffle(currentCards.concat(skippedCards));
     skippedCards = [];
-    debugger;
     handSize = currentCards.length;
 }
 
